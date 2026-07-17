@@ -1,0 +1,55 @@
+# macOS
+.DS_Store
+.AppleDouble
+._*
+
+# Xcode user-specific data
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+*.xccheckout
+*.moved-aside
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+
+# Xcode build products
+build/
+DerivedData/
+*.hmap
+*.ipa
+*.xcarchive
+*.dSYM
+*.dSYM.zip
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# Playgrounds
+timeline.xctimeline
+playground.xcworkspace
+
+# Local editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+Secrets.xcconfig
+Local.xcconfig
+*.p8
+*.p12
+*.pem
+*.key
+*.mobileprovision

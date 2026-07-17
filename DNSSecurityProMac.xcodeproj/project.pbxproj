@@ -1,0 +1,355 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 60;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		E10000000000000000000001 /* DNSSecurityProMacApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000001 /* DNSSecurityProMacApp.swift */; };
+		E10000000000000000000002 /* DNSProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000002 /* DNSProfile.swift */; };
+		E10000000000000000000003 /* DNSProfileRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000003 /* DNSProfileRepository.swift */; };
+		E10000000000000000000004 /* SystemDNSManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000004 /* SystemDNSManager.swift */; };
+		E10000000000000000000005 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000005 /* AppModel.swift */; };
+		E10000000000000000000006 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000006 /* RootView.swift */; };
+		E10000000000000000000007 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000007 /* DashboardView.swift */; };
+		E10000000000000000000008 /* ProfilesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000008 /* ProfilesView.swift */; };
+		E10000000000000000000009 /* ProfileEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000009 /* ProfileEditorView.swift */; };
+		E1000000000000000000000A /* AboutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000A /* AboutView.swift */; };
+		E1000000000000000000000B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000C /* Assets.xcassets */; };
+		E1000000000000000000000C /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000D /* Localizable.xcstrings */; };
+		E1000000000000000000000D /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D1000000000000000000000E /* NetworkExtension.framework */; };
+		E1000000000000000000000E /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000010 /* MenuBarView.swift */; };
+		E1000000000000000000000F /* AppSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000011 /* AppSettingsView.swift */; };
+		E10000000000000000000010 /* TutorialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000012 /* TutorialView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		D10000000000000000000001 /* DNSSecurityProMacApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNSSecurityProMacApp.swift; sourceTree = "<group>"; };
+		D10000000000000000000002 /* DNSProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNSProfile.swift; sourceTree = "<group>"; };
+		D10000000000000000000003 /* DNSProfileRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNSProfileRepository.swift; sourceTree = "<group>"; };
+		D10000000000000000000004 /* SystemDNSManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemDNSManager.swift; sourceTree = "<group>"; };
+		D10000000000000000000005 /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
+		D10000000000000000000006 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		D10000000000000000000007 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		D10000000000000000000008 /* ProfilesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilesView.swift; sourceTree = "<group>"; };
+		D10000000000000000000009 /* ProfileEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileEditorView.swift; sourceTree = "<group>"; };
+		D1000000000000000000000A /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
+		D1000000000000000000000B /* DNSSecurityProMac.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DNSSecurityProMac.entitlements; sourceTree = "<group>"; };
+		D1000000000000000000000C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		D1000000000000000000000D /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
+		D1000000000000000000000E /* NetworkExtension.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NetworkExtension.framework; path = System/Library/Frameworks/NetworkExtension.framework; sourceTree = SDKROOT; };
+		D1000000000000000000000F /* DNS Security Pro.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "DNS Security Pro.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D10000000000000000000010 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
+		D10000000000000000000011 /* AppSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettingsView.swift; sourceTree = "<group>"; };
+		D10000000000000000000012 /* TutorialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		F10000000000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E1000000000000000000000D /* NetworkExtension.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		C10000000000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				C10000000000000000000003 /* DNSSecurityProMac */,
+				C10000000000000000000008 /* Frameworks */,
+				C10000000000000000000002 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		C10000000000000000000002 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D1000000000000000000000F /* DNS Security Pro.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		C10000000000000000000003 /* DNSSecurityProMac */ = {
+			isa = PBXGroup;
+			children = (
+				D10000000000000000000001 /* DNSSecurityProMacApp.swift */,
+				C10000000000000000000004 /* Models */,
+				C10000000000000000000005 /* Services */,
+				C10000000000000000000006 /* ViewModels */,
+				C10000000000000000000007 /* Views */,
+				C10000000000000000000009 /* Resources */,
+				D1000000000000000000000B /* DNSSecurityProMac.entitlements */,
+			);
+			path = DNSSecurityProMac;
+			sourceTree = "<group>";
+		};
+		C10000000000000000000004 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				D10000000000000000000002 /* DNSProfile.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		C10000000000000000000005 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				D10000000000000000000003 /* DNSProfileRepository.swift */,
+				D10000000000000000000004 /* SystemDNSManager.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		C10000000000000000000006 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				D10000000000000000000005 /* AppModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		C10000000000000000000007 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				D10000000000000000000006 /* RootView.swift */,
+				D10000000000000000000007 /* DashboardView.swift */,
+				D10000000000000000000008 /* ProfilesView.swift */,
+				D10000000000000000000009 /* ProfileEditorView.swift */,
+				D1000000000000000000000A /* AboutView.swift */,
+				D10000000000000000000010 /* MenuBarView.swift */,
+				D10000000000000000000011 /* AppSettingsView.swift */,
+				D10000000000000000000012 /* TutorialView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		C10000000000000000000008 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				D1000000000000000000000E /* NetworkExtension.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		C10000000000000000000009 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				D1000000000000000000000C /* Assets.xcassets */,
+				D1000000000000000000000D /* Localizable.xcstrings */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		B10000000000000000000001 /* DNS Security Pro macOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = H10000000000000000000002 /* Build configuration list for PBXNativeTarget "DNS Security Pro macOS" */;
+			buildPhases = (
+				F10000000000000000000002 /* Sources */,
+				F10000000000000000000001 /* Frameworks */,
+				F10000000000000000000003 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "DNS Security Pro macOS";
+			productName = DNSSecurityProMac;
+			productReference = D1000000000000000000000F /* DNS Security Pro.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A10000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2650;
+				LastUpgradeCheck = 2650;
+				TargetAttributes = {
+					B10000000000000000000001 = {
+						CreatedOnToolsVersion = 26.5;
+					};
+				};
+			};
+			buildConfigurationList = H10000000000000000000001 /* Build configuration list for PBXProject "DNSSecurityProMac" */;
+			compatibilityVersion = "Xcode 15.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+				"zh-Hant",
+			);
+			mainGroup = C10000000000000000000001;
+			productRefGroup = C10000000000000000000002 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				B10000000000000000000001 /* DNS Security Pro macOS */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		F10000000000000000000003 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E1000000000000000000000B /* Assets.xcassets in Resources */,
+				E1000000000000000000000C /* Localizable.xcstrings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		F10000000000000000000002 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E10000000000000000000001 /* DNSSecurityProMacApp.swift in Sources */,
+				E10000000000000000000002 /* DNSProfile.swift in Sources */,
+				E10000000000000000000003 /* DNSProfileRepository.swift in Sources */,
+				E10000000000000000000004 /* SystemDNSManager.swift in Sources */,
+				E10000000000000000000005 /* AppModel.swift in Sources */,
+				E10000000000000000000006 /* RootView.swift in Sources */,
+				E10000000000000000000007 /* DashboardView.swift in Sources */,
+				E10000000000000000000008 /* ProfilesView.swift in Sources */,
+				E10000000000000000000009 /* ProfileEditorView.swift in Sources */,
+				E1000000000000000000000A /* AboutView.swift in Sources */,
+				E1000000000000000000000E /* MenuBarView.swift in Sources */,
+				E1000000000000000000000F /* AppSettingsView.swift in Sources */,
+				E10000000000000000000010 /* TutorialView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		G10000000000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		G10000000000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		G10000000000000000000003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = DNSSecurityProMac/DNSSecurityProMac.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = AWP2538424;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "DNS Security Pro";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.peterlee.dnssecuritypro.macos;
+				PRODUCT_NAME = "DNS Security Pro";
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_STRICT_CONCURRENCY = minimal;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		G10000000000000000000004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = DNSSecurityProMac/DNSSecurityProMac.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = AWP2538424;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "DNS Security Pro";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.peterlee.dnssecuritypro.macos;
+				PRODUCT_NAME = "DNS Security Pro";
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_STRICT_CONCURRENCY = minimal;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		H10000000000000000000001 /* Build configuration list for PBXProject "DNSSecurityProMac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				G10000000000000000000001 /* Debug */,
+				G10000000000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		H10000000000000000000002 /* Build configuration list for PBXNativeTarget "DNS Security Pro macOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				G10000000000000000000003 /* Debug */,
+				G10000000000000000000004 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A10000000000000000000001 /* Project object */;
+}
