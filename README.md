@@ -1,5 +1,7 @@
 # DNS Security Pro for macOS
 
+[![Build](https://github.com/peterlee0127/DNS-Security-Pro-macOS/actions/workflows/build.yml/badge.svg)](https://github.com/peterlee0127/DNS-Security-Pro-macOS/actions/workflows/build.yml)
+
 This folder contains a standalone, native macOS SwiftUI app for managing
 system-wide DNS over HTTPS (DoH) and DNS over TLS (DoT) profiles. It does not
 use Mac Catalyst and does not compile source files from the iOS project.
