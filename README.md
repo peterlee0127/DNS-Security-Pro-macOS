@@ -1,5 +1,7 @@
 # DNS Security Pro for macOS
 
+![DNS Security Pro for macOS screenshot](screenshot.png)
+
 [![Build](https://github.com/peterlee0127/DNS-Security-Pro-macOS/actions/workflows/build.yml/badge.svg)](https://github.com/peterlee0127/DNS-Security-Pro-macOS/actions/workflows/build.yml)
 
 This folder contains a standalone, native macOS SwiftUI app for managing
