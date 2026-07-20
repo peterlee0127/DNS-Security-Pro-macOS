@@ -94,7 +94,14 @@ struct RootView: View {
         AppSettingsView()
       }
     }
-    .frame(minWidth: 900, minHeight: 540)
+    // A fixed root size makes Scene.windowResizability(.contentSize)
+    // advertise a non-resizable window to AppKit.
+    .frame(width: 1160, height: 600)
+    .background(
+      WindowSizeConfigurator(
+        fixedContentSize: NSSize(width: 1160, height: 600)
+      )
+    )
     .alert(item: $appModel.alert) { alert in
       Alert(
         title: Text(alert.title),
@@ -136,6 +143,71 @@ struct RootView: View {
     if appModel.isRefreshingSystemStatus { return Color.secondary.opacity(0.35) }
     if appModel.hasSystemStatusError { return .orange }
     return appModel.isSystemEnabled ? .green : Color.secondary.opacity(0.35)
+  }
+}
+
+private struct WindowSizeConfigurator: NSViewRepresentable {
+  let fixedContentSize: NSSize
+
+  func makeNSView(context: Context) -> WindowSizingView {
+    WindowSizingView(fixedContentSize: fixedContentSize)
+  }
+
+  func updateNSView(_ nsView: WindowSizingView, context: Context) {
+    nsView.fixedContentSize = fixedContentSize
+    nsView.applyFixedSize()
+  }
+}
+
+private final class WindowSizingView: NSView {
+  var fixedContentSize: NSSize
+
+  init(fixedContentSize: NSSize) {
+    self.fixedContentSize = fixedContentSize
+    super.init(frame: .zero)
+  }
+
+  @available(*, unavailable)
+  required init?(coder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
+  }
+
+  override func viewDidMoveToWindow() {
+    super.viewDidMoveToWindow()
+    applyFixedSize()
+  }
+
+  func applyFixedSize() {
+    guard let window else { return }
+
+    configure(window)
+
+    // SwiftUI applies some scene configuration after the representable joins
+    // the window. Re-apply once on the next run loop so it cannot restore the
+    // resizable style mask.
+    DispatchQueue.main.async { [weak self, weak window] in
+      guard let self, let window else { return }
+      self.configure(window)
+    }
+  }
+
+  private func configure(_ window: NSWindow) {
+
+    window.contentMinSize = fixedContentSize
+    window.contentMaxSize = fixedContentSize
+    window.styleMask.remove(.resizable)
+    window.standardWindowButton(.zoomButton)?.isEnabled = false
+
+    if window.contentLayoutRect.size != fixedContentSize {
+      window.setContentSize(fixedContentSize)
+    }
+
+    if let screen = window.screen {
+      let constrainedFrame = window.constrainFrameRect(window.frame, to: screen)
+      if constrainedFrame != window.frame {
+        window.setFrame(constrainedFrame, display: true)
+      }
+    }
   }
 }
 

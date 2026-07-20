@@ -39,6 +39,9 @@ struct ProfileEditorView: View {
         }
       }
       .formStyle(.grouped)
+      .onChange(of: profile.dnsProtocol) { _, dnsProtocol in
+        updateEndpointPlaceholder(for: dnsProtocol)
+      }
     }
     .frame(width: 540, height: 390)
     .navigationTitle(profile.name.isEmpty ? "New DNS Profile" : "Edit DNS Profile")
@@ -71,5 +74,17 @@ struct ProfileEditorView: View {
     profile.dnsProtocol == .https
       ? "DNS over HTTPS requires an https:// endpoint URL. Bootstrap servers are optional."
       : "DNS over TLS requires a certificate server name and at least one bootstrap server."
+  }
+
+  private func updateEndpointPlaceholder(for dnsProtocol: DNSProtocol) {
+    let endpoint = profile.endpoint.trimmingCharacters(in: .whitespacesAndNewlines)
+    switch dnsProtocol {
+    case .https where endpoint.isEmpty:
+      profile.endpoint = "https://"
+    case .tls where endpoint == "https://":
+      profile.endpoint = ""
+    default:
+      break
+    }
   }
 }

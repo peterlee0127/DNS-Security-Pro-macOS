@@ -14,7 +14,7 @@ struct ProfilesView: View {
   var body: some View {
     HSplitView {
       profileList
-        .frame(minWidth: 245, idealWidth: 275, maxWidth: 320)
+        .frame(minWidth: 210, idealWidth: 235, maxWidth: 280)
 
       Group {
         if let selectedProfile {
@@ -31,7 +31,7 @@ struct ProfilesView: View {
           )
         }
       }
-      .frame(minWidth: 430, maxWidth: .infinity, maxHeight: .infinity)
+      .frame(minWidth: 390, maxWidth: .infinity, maxHeight: .infinity)
     }
     .navigationTitle("DNS Profiles")
     .toolbar {
@@ -170,7 +170,7 @@ private struct ProfileListRow: View {
   var body: some View {
     HStack(spacing: 10) {
       Image(systemName: profile.dnsProtocol == .https ? "network.badge.shield.half.filled" : "lock.shield")
-        .foregroundStyle(isActive ? Color.accentColor : .secondary)
+        .foregroundStyle(isActive ? Color.primary : Color.secondary)
         .frame(width: 20)
 
       VStack(alignment: .leading, spacing: 2) {
@@ -242,6 +242,8 @@ private struct ProfileDetailView: View {
         HStack(spacing: 8) {
           Text(profile.name)
             .font(.title.bold())
+            .lineLimit(1)
+            .minimumScaleFactor(0.8)
           Text(profile.isBuiltIn ? "Built-in" : "Custom")
             .font(.caption.bold())
             .padding(.horizontal, 7)
@@ -250,13 +252,20 @@ private struct ProfileDetailView: View {
         }
         Text("\(profile.dnsProtocol.rawValue) · \(profile.endpointHost)")
           .foregroundStyle(.secondary)
+          .lineLimit(1)
+          .truncationMode(.middle)
       }
 
       Spacer()
 
       if appModel.selectedProfileID == profile.id {
-        Label("Selected", systemImage: "checkmark.circle.fill")
-          .foregroundStyle(Color.accentColor)
+        ViewThatFits(in: .horizontal) {
+          Label("Selected", systemImage: "checkmark.circle.fill")
+            .fixedSize()
+          Image(systemName: "checkmark.circle.fill")
+            .help("Selected")
+        }
+        .foregroundStyle(Color.accentColor)
       }
     }
   }
@@ -269,16 +278,24 @@ private struct ProfileDetailView: View {
 
       GroupBox("Profile Details") {
         VStack(spacing: 12) {
-          LabeledContent("Protocol", value: profile.dnsProtocol.rawValue)
+          LabeledContent("Protocol") {
+            Text(profile.dnsProtocol.rawValue)
+              .lineLimit(1)
+          }
           Divider()
-          LabeledContent("Endpoint", value: profile.endpointLabel)
+          LabeledContent("Endpoint") {
+            Text(profile.endpointLabel)
+              .lineLimit(1)
+              .truncationMode(.middle)
+              .help(profile.endpointLabel)
+          }
           Divider()
-          LabeledContent(
-            "Bootstrap Servers",
-            value: profile.servers.isEmpty
-              ? String(localized: "Automatic")
-              : profile.servers.joined(separator: ", ")
-          )
+          LabeledContent("Bootstrap Servers") {
+            Text(bootstrapServersLabel)
+              .lineLimit(1)
+              .truncationMode(.middle)
+              .help(bootstrapServersLabel)
+          }
         }
         .textSelection(.enabled)
         .padding(8)
@@ -294,6 +311,12 @@ private struct ProfileDetailView: View {
           || appModel.isRefreshingSystemStatus
       )
     }
+  }
+
+  private var bootstrapServersLabel: String {
+    profile.servers.isEmpty
+      ? String(localized: "Automatic")
+      : profile.servers.joined(separator: ", ")
   }
 
   private var customEditor: some View {
@@ -314,6 +337,9 @@ private struct ProfileDetailView: View {
               }
             }
             .labelsHidden()
+            .onChange(of: draft.dnsProtocol) { _, dnsProtocol in
+              updateEndpointPlaceholder(for: dnsProtocol)
+            }
           }
           GridRow {
             Text(endpointTitle)
@@ -387,6 +413,18 @@ private struct ProfileDetailView: View {
     draft.dnsProtocol == .https
       ? "DNS over HTTPS requires an https:// endpoint URL. Bootstrap servers are optional."
       : "DNS over TLS requires a certificate server name and at least one bootstrap server."
+  }
+
+  private func updateEndpointPlaceholder(for dnsProtocol: DNSProtocol) {
+    let endpoint = draft.endpoint.trimmingCharacters(in: .whitespacesAndNewlines)
+    switch dnsProtocol {
+    case .https where endpoint.isEmpty:
+      draft.endpoint = "https://"
+    case .tls where endpoint == "https://":
+      draft.endpoint = ""
+    default:
+      break
+    }
   }
 
   private func save(useAfterSaving: Bool) {

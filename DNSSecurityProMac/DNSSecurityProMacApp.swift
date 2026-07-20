@@ -19,7 +19,8 @@ struct DNSSecurityProMacApp: App {
           }
         }
     }
-    .defaultSize(width: 920, height: 620)
+    .defaultSize(width: 1160, height: 600)
+    .windowResizability(.contentSize)
     .commands {
       CommandMenu("DNS") {
         Button("Refresh DNS Status") {
