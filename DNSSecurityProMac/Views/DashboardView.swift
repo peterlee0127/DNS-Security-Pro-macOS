@@ -1,9 +1,7 @@
-import AppKit
 import SwiftUI
 
 struct DashboardView: View {
   @EnvironmentObject private var appModel: AppModel
-  @State private var showsDetails = false
 
   private var profileSelection: Binding<String> {
     Binding(
@@ -14,26 +12,15 @@ struct DashboardView: View {
 
   var body: some View {
     ScrollView {
-      VStack(alignment: .leading, spacing: 18) {
-        VStack(alignment: .leading, spacing: 3) {
-          Text("Encrypted DNS for your Mac")
-            .font(.system(size: 28, weight: .bold))
-          Text("Private DNS on Wi-Fi, Ethernet, and every macOS network interface.")
-            .font(.callout)
-            .foregroundStyle(.secondary)
-        }
-
+      VStack(alignment: .leading, spacing: 12) {
         protectionCard
-        activeProfileCard
 
-        if appModel.hasLoadedSystemStatus,
-           !appModel.hasSystemStatusError,
-           !appModel.isSystemEnabled {
+        if appModel.requiresSystemApproval {
           approvalNotice
         }
       }
       .padding(24)
-      .frame(maxWidth: 760, alignment: .leading)
+      .frame(maxWidth: 680, alignment: .leading)
     }
     .navigationTitle("Dashboard")
     .toolbar {
@@ -49,54 +36,84 @@ struct DashboardView: View {
   }
 
   private var protectionCard: some View {
-    HStack(spacing: 18) {
-      ZStack {
-        Circle()
-          .fill(statusColor.opacity(appModel.isSystemEnabled ? 0.16 : 0.08))
-          .frame(width: 72, height: 72)
-        Image(systemName: statusSystemImage)
-          .font(.system(size: 34))
-          .foregroundStyle(statusColor)
-      }
-
-      VStack(alignment: .leading, spacing: 4) {
-        Text(statusTitle)
-          .font(.title2.bold())
-        if let profile = appModel.selectedProfile {
-          Text("\(profile.name) · \(profile.dnsProtocol.shortName)")
-            .font(.headline)
-            .foregroundStyle(appModel.isSystemEnabled ? .primary : .secondary)
+    VStack(alignment: .leading, spacing: 18) {
+      HStack(spacing: 16) {
+        ZStack {
+          Circle()
+            .fill(statusColor.opacity(appModel.isSystemEnabled ? 0.16 : 0.08))
+            .frame(width: 58, height: 58)
+          Image(systemName: statusSystemImage)
+            .font(.system(size: 28))
+            .foregroundStyle(statusColor)
         }
-        Text(statusMessage)
-          .font(.callout)
-          .foregroundStyle(.secondary)
-      }
 
-      Spacer(minLength: 16)
+        VStack(alignment: .leading, spacing: 3) {
+          Text(statusTitle)
+            .font(.title2.bold())
+          Text(statusMessage)
+            .font(.callout)
+            .foregroundStyle(.secondary)
+        }
 
-      if !appModel.hasLoadedSystemStatus
-        || appModel.isBusy
-        || appModel.isRefreshingSystemStatus {
-        ProgressView()
+        Spacer(minLength: 12)
+
+        if !appModel.hasLoadedSystemStatus
+          || appModel.isBusy
+          || appModel.isRefreshingSystemStatus {
+          ProgressView()
+            .controlSize(.large)
+        } else if appModel.hasSystemStatusError {
+          Button("Try Again") {
+            appModel.refreshSystemStatus(showErrors: true)
+          }
+          .buttonStyle(.borderedProminent)
           .controlSize(.large)
-      } else if appModel.hasSystemStatusError {
-        Button("Try Again") {
-          appModel.refreshSystemStatus(showErrors: true)
+        } else if appModel.isSystemEnabled {
+          Button("Disconnect") {
+            appModel.setDNSActive(false)
+          }
+          .buttonStyle(.bordered)
+          .controlSize(.large)
+        } else {
+          Button("Connect") {
+            appModel.setDNSActive(true)
+          }
+          .buttonStyle(.borderedProminent)
+          .controlSize(.large)
         }
-        .buttonStyle(.borderedProminent)
-        .controlSize(.large)
-      } else if appModel.isSystemEnabled {
-        Button("Disconnect") {
-          appModel.setDNSActive(false)
+      }
+
+      Divider()
+
+      VStack(alignment: .leading, spacing: 6) {
+        Text("DNS Profile")
+          .font(.caption)
+          .foregroundStyle(.secondary)
+
+        HStack(spacing: 10) {
+          Picker("DNS Profile", selection: profileSelection) {
+            ForEach(appModel.profiles) { profile in
+              Text("\(profile.name) · \(profile.dnsProtocol.shortName)")
+                .tag(profile.id)
+            }
+          }
+          .labelsHidden()
+          .frame(maxWidth: 320)
+          .disabled(appModel.isBusy || appModel.isRefreshingSystemStatus)
+
+          if let profile = appModel.selectedProfile {
+            Text(profile.endpointHost)
+              .font(.callout)
+              .foregroundStyle(.secondary)
+              .lineLimit(1)
+              .truncationMode(.middle)
+          }
         }
-        .buttonStyle(.bordered)
-        .controlSize(.large)
-      } else {
-        Button("Connect") {
-          appModel.setDNSActive(true)
-        }
-        .buttonStyle(.borderedProminent)
-        .controlSize(.large)
+      }
+
+      if let profile = appModel.selectedProfile {
+        Divider()
+        dnsHealthRow(profile)
       }
     }
     .padding(20)
@@ -110,53 +127,74 @@ struct DashboardView: View {
     }
   }
 
-  private var activeProfileCard: some View {
-    GroupBox("Selected Profile") {
-      VStack(alignment: .leading, spacing: 12) {
-        Picker("DNS Profile", selection: profileSelection) {
-          ForEach(appModel.profiles) { profile in
-            Text("\(profile.name) · \(profile.dnsProtocol.shortName)")
-              .tag(profile.id)
+  private func dnsHealthRow(_ profile: DNSProfile) -> some View {
+    HStack(spacing: 12) {
+      Image(systemName: probeSystemImage(for: profile))
+        .foregroundStyle(probeColor(for: profile))
+        .frame(width: 22)
+
+      VStack(alignment: .leading, spacing: 2) {
+        HStack(spacing: 7) {
+          Text("Resolver Health")
+            .font(.callout.weight(.medium))
+          if let latency = appModel.probeResults[profile.id]?.latencyMilliseconds {
+            Text("\(latency) ms")
+              .font(.caption.monospacedDigit())
+              .padding(.horizontal, 6)
+              .padding(.vertical, 2)
+              .background(Color.green.opacity(0.12), in: Capsule())
           }
         }
-        .labelsHidden()
-        .disabled(appModel.isBusy || appModel.isRefreshingSystemStatus)
 
-        if let profile = appModel.selectedProfile {
-          HStack(spacing: 8) {
-            Text(profile.dnsProtocol.shortName)
-              .font(.caption.bold())
-              .padding(.horizontal, 7)
-              .padding(.vertical, 3)
-              .background(Color.accentColor.opacity(0.14), in: Capsule())
-            Text(profile.endpointHost)
-              .font(.callout)
-              .foregroundStyle(.secondary)
-            Spacer()
-          }
+        Text(probeDetail(for: profile))
+          .font(.caption)
+          .foregroundStyle(.secondary)
+          .lineLimit(2)
+      }
 
-          DisclosureGroup("Details", isExpanded: $showsDetails) {
-            VStack(alignment: .leading, spacing: 10) {
-              Divider()
-              DetailRow(title: "Endpoint", value: profile.endpointLabel) {
-                copyToPasteboard(profile.endpointLabel)
-              }
-              DetailRow(
-                title: "Bootstrap Servers",
-                value: profile.servers.isEmpty
-                  ? String(localized: "Automatic")
-                  : profile.servers.joined(separator: ", ")
-              ) {
-                copyToPasteboard(profile.servers.joined(separator: ", "))
-              }
-            }
-            .padding(.top, 6)
-          }
-          .font(.callout)
+      Spacer(minLength: 12)
+
+      Button {
+        appModel.probe(profile)
+      } label: {
+        if appModel.probingProfileIDs.contains(profile.id) {
+          ProgressView()
+            .controlSize(.small)
+        } else {
+          Label("Test Resolver", systemImage: "waveform.path.ecg")
         }
       }
-      .padding(6)
+      .disabled(appModel.probingProfileIDs.contains(profile.id))
+      .controlSize(.small)
     }
+  }
+
+  private func probeSystemImage(for profile: DNSProfile) -> String {
+    guard let result = appModel.probeResults[profile.id] else {
+      return "questionmark.circle"
+    }
+    return result.status == .reachable
+      ? "checkmark.circle.fill"
+      : "exclamationmark.triangle.fill"
+  }
+
+  private func probeColor(for profile: DNSProfile) -> Color {
+    guard let result = appModel.probeResults[profile.id] else { return .secondary }
+    return result.status == .reachable ? .green : .orange
+  }
+
+  private func probeDetail(for profile: DNSProfile) -> String {
+    if appModel.probingProfileIDs.contains(profile.id) {
+      return String(localized: "Sending an encrypted DNS query…")
+    }
+    guard let result = appModel.probeResults[profile.id] else {
+      return String(localized: "Not tested yet.")
+    }
+    let relativeTime = RelativeDateTimeFormatter().localizedString(
+      for: result.measuredAt,
+      relativeTo: Date()
+    )
+    return "\(result.detail) \(relativeTime)"
   }
 
   private var approvalNotice: some View {
@@ -164,7 +202,7 @@ struct DashboardView: View {
       Image(systemName: "info.circle.fill")
         .foregroundStyle(Color.accentColor)
       VStack(alignment: .leading, spacing: 2) {
-        Text("System approval may be required the first time you connect.")
+        Text("System approval is required to connect.")
           .font(.callout)
         Text("System Settings → Network → VPN & Filters → DNS Security Pro")
           .font(.caption)
@@ -182,6 +220,9 @@ struct DashboardView: View {
   }
 
   private var statusColor: Color {
+    if !appModel.hasLoadedSystemStatus || appModel.isRefreshingSystemStatus {
+      return .accentColor
+    }
     if appModel.hasSystemStatusError { return .orange }
     return appModel.isSystemEnabled ? .green : Color(nsColor: .secondaryLabelColor)
   }
@@ -210,36 +251,6 @@ struct DashboardView: View {
     }
     return appModel.isSystemEnabled
       ? "Your Mac is protected by the selected encrypted DNS profile."
-      : "Connect when you want to use this profile."
-  }
-
-  private func copyToPasteboard(_ value: String) {
-    guard !value.isEmpty else { return }
-    NSPasteboard.general.clearContents()
-    NSPasteboard.general.setString(value, forType: .string)
-  }
-}
-
-private struct DetailRow: View {
-  let title: LocalizedStringKey
-  let value: String
-  let copyAction: () -> Void
-
-  var body: some View {
-    HStack(alignment: .firstTextBaseline, spacing: 12) {
-      Text(title)
-        .foregroundStyle(.secondary)
-        .frame(width: 125, alignment: .leading)
-      Text(value)
-        .textSelection(.enabled)
-        .lineLimit(2)
-      Spacer()
-      Button(action: copyAction) {
-        Image(systemName: "doc.on.doc")
-      }
-      .buttonStyle(.plain)
-      .foregroundStyle(.secondary)
-      .help("Copy")
-    }
+      : "Choose a profile, then connect encrypted DNS."
   }
 }

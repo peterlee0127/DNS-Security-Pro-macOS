@@ -1,75 +1,102 @@
+import ServiceManagement
 import SwiftUI
 
 struct AppSettingsView: View {
   @AppStorage(AppPreferenceKey.showsMenuBarExtra) private var showsMenuBarExtra = true
   @AppStorage(AppPreferenceKey.quitsAfterApplyingDNS) private var quitsAfterApplyingDNS = false
+  @AppStorage(AppPreferenceKey.notifiesDNSFailures) private var notifiesDNSFailures = false
+  @State private var launchesAtLogin = Self.isLoginItemRequested
+  @State private var settingsError: String?
 
   var body: some View {
-    ScrollView {
-      VStack(alignment: .leading, spacing: 20) {
-        VStack(alignment: .leading, spacing: 4) {
-          Text("Settings")
-            .font(.largeTitle.bold())
-          Text("Choose what DNS Security Pro does after you apply a DNS change.")
-            .foregroundStyle(.secondary)
-        }
+    Form {
+      Section("General") {
+        Toggle("Show DNS Security Pro in the menu bar", isOn: $showsMenuBarExtra)
+        Text("Keep quick DNS controls available after closing the main window.")
+          .font(.caption)
+          .foregroundStyle(.secondary)
 
-        PreferenceCard(
-          systemImage: "menubar.rectangle",
-          title: "Menu Bar",
-          message: "Keep quick DNS controls available after closing the main window."
-        ) {
-          Toggle("Show DNS Security Pro in the menu bar", isOn: $showsMenuBarExtra)
-        }
-
-        PreferenceCard(
-          systemImage: "power",
-          title: "App Behavior",
-          message: "The installed DNS profile remains active after the app quits."
-        ) {
-          Toggle("Quit after applying DNS changes", isOn: $quitsAfterApplyingDNS)
-        }
-
-        Label(
-          "You can always reopen the app to change or disable the installed profile.",
-          systemImage: "info.circle"
-        )
-        .font(.callout)
-        .foregroundStyle(.secondary)
-      }
-      .padding(24)
-      .frame(maxWidth: 660, alignment: .leading)
-    }
-    .frame(minWidth: 520, minHeight: 350)
-    .navigationTitle("Settings")
-  }
-}
-
-private struct PreferenceCard<Control: View>: View {
-  let systemImage: String
-  let title: LocalizedStringKey
-  let message: LocalizedStringKey
-  @ViewBuilder let control: () -> Control
-
-  var body: some View {
-    HStack(alignment: .top, spacing: 14) {
-      Image(systemName: systemImage)
-        .font(.title2)
-        .foregroundStyle(Color.accentColor)
-        .frame(width: 38, height: 38)
-        .background(Color.accentColor.opacity(0.12), in: RoundedRectangle(cornerRadius: 9))
-
-      VStack(alignment: .leading, spacing: 7) {
-        Text(title)
-          .font(.headline)
-        control()
-        Text(message)
+        Toggle("Open at Login", isOn: $launchesAtLogin)
+        Text(loginItemStatusText)
           .font(.caption)
           .foregroundStyle(.secondary)
       }
-      Spacer()
+
+      Section("DNS Changes") {
+        Toggle("Quit after applying DNS changes", isOn: $quitsAfterApplyingDNS)
+        Text("The installed DNS profile remains active after the app quits.")
+          .font(.caption)
+          .foregroundStyle(.secondary)
+
+        Toggle("Notify me when a DNS change fails", isOn: $notifiesDNSFailures)
+        Text("Notifications are only sent for connection, disconnection, or profile errors.")
+          .font(.caption)
+          .foregroundStyle(.secondary)
+      }
     }
-    .padding(16)
-    .background(.quaternary.opacity(0.55), in: RoundedRectangle(cornerRadius: 12))
+    .formStyle(.grouped)
+    .frame(width: 540, height: 430)
+    .navigationTitle("Settings")
+    .onAppear {
+      launchesAtLogin = Self.isLoginItemRequested
+    }
+    .onChange(of: launchesAtLogin) { _, isEnabled in
+      updateLoginItem(isEnabled: isEnabled)
+    }
+    .onChange(of: notifiesDNSFailures) { _, isEnabled in
+      if isEnabled {
+        AppNotificationService.shared.requestAuthorization()
+      }
+    }
+    .alert(
+      "Settings Could Not Be Updated",
+      isPresented: Binding(
+        get: { settingsError != nil },
+        set: { if !$0 { settingsError = nil } }
+      )
+    ) {
+      Button("OK") {
+        settingsError = nil
+      }
+    } message: {
+      Text(settingsError ?? "")
+    }
+  }
+
+  private var loginItemStatusText: String {
+    switch SMAppService.mainApp.status {
+    case .enabled:
+      return String(localized: "DNS Security Pro opens automatically after you log in.")
+    case .requiresApproval:
+      return String(localized: "Approval is required in System Settings → General → Login Items.")
+    case .notFound:
+      return String(localized: "Login item registration is unavailable for this copy of the app.")
+    case .notRegistered:
+      return String(localized: "The app will not open automatically.")
+    @unknown default:
+      return String(localized: "Login item status is unavailable.")
+    }
+  }
+
+  private static var isLoginItemRequested: Bool {
+    switch SMAppService.mainApp.status {
+    case .enabled, .requiresApproval:
+      return true
+    default:
+      return false
+    }
+  }
+
+  private func updateLoginItem(isEnabled: Bool) {
+    do {
+      if isEnabled {
+        try SMAppService.mainApp.register()
+      } else {
+        try SMAppService.mainApp.unregister()
+      }
+    } catch {
+      settingsError = error.localizedDescription
+      launchesAtLogin = Self.isLoginItemRequested
+    }
   }
 }

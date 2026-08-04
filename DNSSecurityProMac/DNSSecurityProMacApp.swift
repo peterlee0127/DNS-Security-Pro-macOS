@@ -7,7 +7,7 @@ struct DNSSecurityProMacApp: App {
   @StateObject private var appModel = AppModel()
 
   var body: some Scene {
-    WindowGroup(id: "main") {
+    WindowGroup(id: "main-v2") {
       RootView()
         .environmentObject(appModel)
         .task {
@@ -19,9 +19,11 @@ struct DNSSecurityProMacApp: App {
           }
         }
     }
-    .defaultSize(width: 1160, height: 600)
-    .windowResizability(.contentSize)
+    .defaultSize(width: 900, height: 560)
+    .windowResizability(.automatic)
     .commands {
+      TutorialCommands()
+
       CommandMenu("DNS") {
         Button("Refresh DNS Status") {
           appModel.refreshSystemStatus(showErrors: true)
@@ -35,11 +37,24 @@ struct DNSSecurityProMacApp: App {
         } label: {
           Text(dnsToggleTitle)
         }
+        .keyboardShortcut("d", modifiers: [.command, .shift])
         .disabled(
           appModel.isBusy
             || appModel.isRefreshingSystemStatus
             || !appModel.hasLoadedSystemStatus
             || appModel.hasSystemStatusError
+        )
+
+        Button("Test Selected Resolver") {
+          if let profile = appModel.selectedProfile {
+            appModel.probe(profile)
+          }
+        }
+        .keyboardShortcut("t", modifiers: [.command, .shift])
+        .disabled(
+          appModel.selectedProfile.map {
+            appModel.probingProfileIDs.contains($0.id)
+          } ?? true
         )
       }
     }
@@ -47,14 +62,17 @@ struct DNSSecurityProMacApp: App {
     MenuBarExtra(isInserted: $showsMenuBarExtra) {
       MenuBarView()
         .environmentObject(appModel)
-        .task {
-          appModel.start()
-        }
     } label: {
       Image(systemName: menuBarSystemImage)
         .accessibilityLabel(Text("DNS Security Pro"))
     }
     .menuBarExtraStyle(.menu)
+
+    Window("Tutorial", id: "tutorial") {
+      TutorialView()
+        .environmentObject(appModel)
+    }
+    .defaultSize(width: 660, height: 520)
 
     Settings {
       AppSettingsView()
@@ -68,5 +86,17 @@ struct DNSSecurityProMacApp: App {
   private var menuBarSystemImage: String {
     if appModel.hasSystemStatusError { return "exclamationmark.shield.fill" }
     return appModel.isSystemEnabled ? "checkmark.shield.fill" : "shield"
+  }
+}
+
+private struct TutorialCommands: Commands {
+  @Environment(\.openWindow) private var openWindow
+
+  var body: some Commands {
+    CommandGroup(after: .help) {
+      Button("Tutorial") {
+        openWindow(id: "tutorial")
+      }
+    }
   }
 }

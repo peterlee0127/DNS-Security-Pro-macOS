@@ -100,6 +100,29 @@ users can hide the menu bar item or ask the app to quit after a successful DNS
 change. The installed system DNS configuration remains active after the app
 quits.
 
+The Dashboard can send a real encrypted DNS query to the selected resolver and
+show its round-trip latency. Tests use an RFC 8484 DNS message for DoH and a
+length-prefixed DNS message over a certificate-validated TLS connection for
+DoT. The test does not use a third-party leak-test or analytics service.
+
+Custom profiles can include automatic rules:
+
+- Disable the encrypted resolver on selected Wi-Fi SSIDs.
+- Exclude selected domains and their subdomains so they use the normal system
+  DNS resolver.
+
+Profile management also supports search, protection labels, testing every
+resolver, and importing or exporting custom profiles as a versioned JSON
+archive. Existing profile files remain compatible when the additional metadata
+and automatic-rule fields are absent.
+
+Additional macOS integrations include launch at login, optional notifications
+when a DNS change fails, and keyboard shortcuts:
+
+- `Shift-Command-D`: connect or disconnect encrypted DNS.
+- `Shift-Command-R`: refresh the macOS DNS status.
+- `Shift-Command-T`: test the selected resolver.
+
 DNS changes are disabled while the current macOS DNS state is still loading or
 cannot be read. The dashboard shows a separate unavailable state and retry
 action instead of incorrectly reporting that DNS is off.

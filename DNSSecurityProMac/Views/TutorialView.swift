@@ -9,7 +9,7 @@ struct TutorialView: View {
         VStack(alignment: .leading, spacing: 5) {
           Text("Set Up Encrypted DNS")
             .font(.largeTitle.bold())
-          Text("Follow these five steps. You normally need to approve the configuration only the first time.")
+          Text("Choose a profile, connect, and approve the configuration the first time.")
             .foregroundStyle(.secondary)
         }
 
@@ -18,14 +18,14 @@ struct TutorialView: View {
             number: 1,
             systemImage: "server.rack",
             title: "Choose a DNS profile",
-            message: "Open DNS Profiles and select a built-in resolver, or add your own DoH or DoT profile."
+            message: "Choose a built-in resolver on Dashboard, or add your own DoH or DoT profile in DNS Profiles."
           )
 
           TutorialStepCard(
             number: 2,
             systemImage: "bolt.shield",
             title: "Connect encrypted DNS",
-            message: "Return to Dashboard and choose Connect. DNS Security Pro installs the selected encrypted DNS configuration."
+            message: "Choose Connect on Dashboard. DNS Security Pro installs the selected encrypted DNS configuration."
           )
 
           TutorialStepCard(
@@ -39,16 +39,9 @@ struct TutorialView: View {
 
           TutorialStepCard(
             number: 4,
-            systemImage: "checkmark.shield",
-            title: "Confirm protection",
-            message: "Refresh DNS status if needed. A green shield and “Encrypted DNS is active” confirm that the profile is enabled."
-          )
-
-          TutorialStepCard(
-            number: 5,
-            systemImage: "menubar.rectangle",
-            title: "Choose how the app stays available",
-            message: "Keep the menu bar control enabled, or hide it and optionally quit after successful DNS changes."
+            systemImage: "waveform.path.ecg",
+            title: "Verify the resolver",
+            message: "Return to Dashboard and choose Test Resolver to send an encrypted DNS query and measure its latency."
           )
         }
 

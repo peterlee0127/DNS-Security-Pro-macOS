@@ -5,6 +5,26 @@ struct DNSRepositorySnapshot {
   let selectedProfileID: String
 }
 
+enum DNSProfileRepositoryError: LocalizedError {
+  case storagePathNotFound
+  case storageDirectoryCreationFailed(URL)
+  case corruptStoredData
+  case writeFailed
+
+  var errorDescription: String? {
+    switch self {
+    case .storagePathNotFound:
+      return "Could not locate the Application Support directory."
+    case .storageDirectoryCreationFailed(let url):
+      return "Could not create the storage directory at \(url.path)."
+    case .corruptStoredData:
+      return "The stored profile data is corrupted. Resetting to default profiles."
+    case .writeFailed:
+      return "Could not write the profile data to disk."
+    }
+  }
+}
+
 final class DNSProfileRepository {
   private struct StoredState: Codable {
     var customProfiles: [DNSProfile]
@@ -20,10 +40,13 @@ final class DNSProfileRepository {
     if let storageURL {
       self.storageURL = storageURL
     } else {
-      let applicationSupport = fileManager.urls(
+      guard let applicationSupport = fileManager.urls(
         for: .applicationSupportDirectory,
         in: .userDomainMask
-      ).first!
+      ).first else {
+        self.storageURL = URL(fileURLWithPath: "/tmp/DNSSecurityPro/profiles.json")
+        return
+      }
       self.storageURL = applicationSupport
         .appendingPathComponent("DNS Security Pro", isDirectory: true)
         .appendingPathComponent("profiles.json", isDirectory: false)
@@ -39,7 +62,13 @@ final class DNSProfileRepository {
     }
 
     let data = try Data(contentsOf: storageURL)
-    let stored = try JSONDecoder().decode(StoredState.self, from: data)
+    let stored: StoredState
+    do {
+      stored = try JSONDecoder().decode(StoredState.self, from: data)
+    } catch {
+      throw DNSProfileRepositoryError.corruptStoredData
+    }
+
     let customProfiles = stored.customProfiles.map { profile in
       var copy = profile
       copy.isBuiltIn = false
@@ -58,10 +87,14 @@ final class DNSProfileRepository {
 
   func save(profiles: [DNSProfile], selectedProfileID: String) throws {
     let parentDirectory = storageURL.deletingLastPathComponent()
-    try fileManager.createDirectory(
-      at: parentDirectory,
-      withIntermediateDirectories: true
-    )
+    do {
+      try fileManager.createDirectory(
+        at: parentDirectory,
+        withIntermediateDirectories: true
+      )
+    } catch {
+      throw DNSProfileRepositoryError.storageDirectoryCreationFailed(parentDirectory)
+    }
 
     let state = StoredState(
       customProfiles: profiles.filter { !$0.isBuiltIn },
@@ -70,6 +103,10 @@ final class DNSProfileRepository {
     let encoder = JSONEncoder()
     encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
     let data = try encoder.encode(state)
-    try data.write(to: storageURL, options: .atomic)
+    do {
+      try data.write(to: storageURL, options: .atomic)
+    } catch {
+      throw DNSProfileRepositoryError.writeFailed
+    }
   }
 }

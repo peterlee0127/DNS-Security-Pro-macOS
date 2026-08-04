@@ -51,10 +51,23 @@ struct MenuBarView: View {
     }
     .disabled(appModel.isBusy || appModel.isRefreshingSystemStatus)
 
+    if let profile = appModel.selectedProfile {
+      Button {
+        appModel.probe(profile)
+      } label: {
+        if let latency = appModel.probeResults[profile.id]?.latencyMilliseconds {
+          Text("Test Resolver (\(latency) ms)")
+        } else {
+          Text("Test Resolver")
+        }
+      }
+      .disabled(appModel.probingProfileIDs.contains(profile.id))
+    }
+
     Divider()
 
     Button("Open DNS Security Pro") {
-      openWindow(id: "main")
+      openWindow(id: "main-v2")
       NSApplication.shared.activate(ignoringOtherApps: true)
     }
 

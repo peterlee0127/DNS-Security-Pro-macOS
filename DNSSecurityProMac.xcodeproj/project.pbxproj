@@ -23,6 +23,9 @@
 		E1000000000000000000000E /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000010 /* MenuBarView.swift */; };
 		E1000000000000000000000F /* AppSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000011 /* AppSettingsView.swift */; };
 		E10000000000000000000010 /* TutorialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000012 /* TutorialView.swift */; };
+		E10000000000000000000011 /* DNSProbeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000013 /* DNSProbeService.swift */; };
+		E10000000000000000000012 /* DNSProfilesDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000014 /* DNSProfilesDocument.swift */; };
+		E10000000000000000000013 /* AppNotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000015 /* AppNotificationService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -44,6 +47,9 @@
 		D10000000000000000000010 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
 		D10000000000000000000011 /* AppSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettingsView.swift; sourceTree = "<group>"; };
 		D10000000000000000000012 /* TutorialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialView.swift; sourceTree = "<group>"; };
+		D10000000000000000000013 /* DNSProbeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNSProbeService.swift; sourceTree = "<group>"; };
+		D10000000000000000000014 /* DNSProfilesDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNSProfilesDocument.swift; sourceTree = "<group>"; };
+		D10000000000000000000015 /* AppNotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppNotificationService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -93,6 +99,7 @@
 			isa = PBXGroup;
 			children = (
 				D10000000000000000000002 /* DNSProfile.swift */,
+				D10000000000000000000014 /* DNSProfilesDocument.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -102,6 +109,8 @@
 			children = (
 				D10000000000000000000003 /* DNSProfileRepository.swift */,
 				D10000000000000000000004 /* SystemDNSManager.swift */,
+				D10000000000000000000013 /* DNSProbeService.swift */,
+				D10000000000000000000015 /* AppNotificationService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -230,6 +239,9 @@
 				E1000000000000000000000E /* MenuBarView.swift in Sources */,
 				E1000000000000000000000F /* AppSettingsView.swift in Sources */,
 				E10000000000000000000010 /* TutorialView.swift in Sources */,
+				E10000000000000000000011 /* DNSProbeService.swift in Sources */,
+				E10000000000000000000012 /* DNSProfilesDocument.swift in Sources */,
+				E10000000000000000000013 /* AppNotificationService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -278,12 +290,23 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = DNSSecurityProMac/DNSSecurityProMac.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = AWP2538424;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_INCOMING_NETWORK_CONNECTIONS = NO;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
+				ENABLE_RESOURCE_ACCESS_BLUETOOTH = NO;
+				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
+				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
+				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
+				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
+				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
+				ENABLE_RESOURCE_ACCESS_USB = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "DNS Security Pro";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
@@ -294,6 +317,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.peterlee.dnssecuritypro.macos;
 				PRODUCT_NAME = "DNS Security Pro";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_STRICT_CONCURRENCY = minimal;
@@ -306,11 +330,22 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = DNSSecurityProMac/DNSSecurityProMac.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = AWP2538424;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_INCOMING_NETWORK_CONNECTIONS = NO;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = NO;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
+				ENABLE_RESOURCE_ACCESS_BLUETOOTH = NO;
+				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
+				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
+				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
+				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
+				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
+				ENABLE_RESOURCE_ACCESS_USB = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "DNS Security Pro";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
@@ -321,6 +356,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.peterlee.dnssecuritypro.macos;
 				PRODUCT_NAME = "DNS Security Pro";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_STRICT_CONCURRENCY = minimal;

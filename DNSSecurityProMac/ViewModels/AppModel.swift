@@ -4,6 +4,7 @@ import Foundation
 enum AppPreferenceKey {
   static let showsMenuBarExtra = "showsMenuBarExtra"
   static let quitsAfterApplyingDNS = "quitsAfterApplyingDNS"
+  static let notifiesDNSFailures = "notifiesDNSFailures"
 }
 
 @MainActor
@@ -13,20 +14,29 @@ final class AppModel: ObservableObject {
   @Published private(set) var isSystemEnabled = false
   @Published private(set) var hasLoadedSystemStatus = false
   @Published private(set) var hasSystemStatusError = false
+  @Published private(set) var requiresSystemApproval = false
   @Published private(set) var isRefreshingSystemStatus = false
   @Published private(set) var isBusy = false
+  @Published private(set) var probeResults: [String: DNSProbeResult] = [:]
+  @Published private(set) var probingProfileIDs: Set<String> = []
   @Published var alert: AppAlert?
 
   private let repository: DNSProfileRepository
   private let systemDNSManager: SystemDNSManager
+  private let dnsProbeService: DNSProbeService
+  private let notificationService: AppNotificationService
   private var hasStarted = false
 
   init(
     repository: DNSProfileRepository = DNSProfileRepository(),
-    systemDNSManager: SystemDNSManager = .shared
+    systemDNSManager: SystemDNSManager = .shared,
+    dnsProbeService: DNSProbeService = DNSProbeService(),
+    notificationService: AppNotificationService = .shared
   ) {
     self.repository = repository
     self.systemDNSManager = systemDNSManager
+    self.dnsProbeService = dnsProbeService
+    self.notificationService = notificationService
   }
 
   var selectedProfile: DNSProfile? {
@@ -67,6 +77,9 @@ final class AppModel: ObservableObject {
         case .success(let isEnabled):
           self.isSystemEnabled = isEnabled
           self.hasSystemStatusError = false
+          if isEnabled {
+            self.requiresSystemApproval = false
+          }
         case .failure(let error):
           self.hasSystemStatusError = true
           if showErrors {
@@ -107,18 +120,20 @@ final class AppModel: ObservableObject {
             self.isSystemEnabled = isEnabled
             self.hasLoadedSystemStatus = true
             self.hasSystemStatusError = false
+            self.requiresSystemApproval = !isEnabled
             if !isEnabled {
               self.alert = AppAlert(
                 title: String(localized: "Approval Required"),
                 message: String(localized: "Open System Settings → Network → VPN & Filters → DNS Security Pro, approve the configuration, then return and refresh the status.")
               )
             } else {
+              self.probe(selectedProfile)
               self.quitAfterSuccessfulDNSChangeIfNeeded()
             }
           case .failure(let error):
-            self.alert = AppAlert(
+            self.presentDNSFailure(
               title: String(localized: "DNS Could Not Be Enabled"),
-              message: error.localizedDescription
+              error: error
             )
           }
         }
@@ -133,11 +148,12 @@ final class AppModel: ObservableObject {
             self.isSystemEnabled = false
             self.hasLoadedSystemStatus = true
             self.hasSystemStatusError = false
+            self.requiresSystemApproval = false
             self.quitAfterSuccessfulDNSChangeIfNeeded()
           case .failure(let error):
-            self.alert = AppAlert(
+            self.presentDNSFailure(
               title: String(localized: "DNS Could Not Be Disabled"),
-              message: error.localizedDescription
+              error: error
             )
           }
         }
@@ -167,7 +183,9 @@ final class AppModel: ObservableObject {
             self.isSystemEnabled = enabled
             self.hasLoadedSystemStatus = true
             self.hasSystemStatusError = false
+            self.requiresSystemApproval = !enabled
             if enabled {
+              self.probe(selectedProfile)
               self.quitAfterSuccessfulDNSChangeIfNeeded()
             } else {
               self.alert = AppAlert(
@@ -178,9 +196,9 @@ final class AppModel: ObservableObject {
           case .failure(let error):
             self.selectedProfileID = previousProfileID
             self.persist(showErrors: false)
-            self.alert = AppAlert(
+            self.presentDNSFailure(
               title: String(localized: "DNS Profile Could Not Be Applied"),
-              message: error.localizedDescription
+              error: error
             )
           }
         }
@@ -215,6 +233,7 @@ final class AppModel: ObservableObject {
       } else {
         profiles.append(validatedProfile)
       }
+      probeResults[validatedProfile.id] = nil
       profiles.sort(by: Self.profileSort)
       guard persist() else {
         profiles = previousProfiles
@@ -248,6 +267,7 @@ final class AppModel: ObservableObject {
     let previousProfileID = selectedProfileID
     let wasSelected = previousProfileID == profile.id
     profiles.removeAll { $0.id == profile.id }
+    probeResults[profile.id] = nil
     if wasSelected {
       selectedProfileID = "google-doh"
     }
@@ -273,6 +293,88 @@ final class AppModel: ObservableObject {
     NSWorkspace.shared.open(settingsURL)
   }
 
+  func probe(_ profile: DNSProfile) {
+    guard !probingProfileIDs.contains(profile.id) else { return }
+    probingProfileIDs.insert(profile.id)
+    dnsProbeService.probe(profile: profile) { [weak self] result in
+      DispatchQueue.main.async {
+        guard let self else { return }
+        self.probingProfileIDs.remove(profile.id)
+        self.probeResults[profile.id] = result
+      }
+    }
+  }
+
+  func probeAllProfiles() {
+    for profile in profiles where !probingProfileIDs.contains(profile.id) {
+      probe(profile)
+    }
+  }
+
+  func importProfiles(_ importedProfiles: [DNSProfile]) {
+    guard !isBusy, !isRefreshingSystemStatus else { return }
+
+    let previousProfiles = profiles
+    var importedCount = 0
+    var updatedCount = 0
+    var skippedCount = 0
+    var updatedSelectedProfile = false
+
+    for importedProfile in importedProfiles {
+      do {
+        var candidate = try importedProfile.validated()
+        candidate.isBuiltIn = false
+
+        if DNSProfile.builtInProfiles.contains(where: { $0.id == candidate.id }) {
+          candidate = candidate.withID(UUID().uuidString)
+        }
+
+        if let existingIndex = profiles.firstIndex(where: {
+          $0.id == candidate.id && !$0.isBuiltIn
+        }) {
+          profiles[existingIndex] = candidate
+          updatedCount += 1
+          updatedSelectedProfile = updatedSelectedProfile || candidate.id == selectedProfileID
+          continue
+        }
+
+        let hasDuplicateName = profiles.contains {
+          $0.name.caseInsensitiveCompare(candidate.name) == .orderedSame
+            && $0.dnsProtocol == candidate.dnsProtocol
+        }
+        guard !hasDuplicateName else {
+          skippedCount += 1
+          continue
+        }
+
+        profiles.append(candidate)
+        importedCount += 1
+      } catch {
+        skippedCount += 1
+      }
+    }
+
+    profiles.sort(by: Self.profileSort)
+    guard persist() else {
+      profiles = previousProfiles
+      return
+    }
+
+    alert = AppAlert(
+      title: String(localized: "DNS Profiles Imported"),
+      message: String(
+        format: String(localized: "%lld added, %lld updated, %lld skipped."),
+        importedCount,
+        updatedCount,
+        skippedCount
+      )
+    )
+
+    if updatedSelectedProfile, isSystemEnabled {
+      selectProfile(id: selectedProfileID)
+    }
+  }
+
   @discardableResult
   private func persist(showErrors: Bool = true) -> Bool {
     do {
@@ -294,6 +396,14 @@ final class AppModel: ObservableObject {
       return
     }
     NSApplication.shared.terminate(nil)
+  }
+
+  private func presentDNSFailure(title: String, error: Error) {
+    alert = AppAlert(title: title, message: error.localizedDescription)
+    notificationService.notifyDNSFailure(
+      title: title,
+      message: error.localizedDescription
+    )
   }
 
   private static func profileSort(_ lhs: DNSProfile, _ rhs: DNSProfile) -> Bool {

@@ -1,8 +1,10 @@
 import SwiftUI
 
 struct AboutView: View {
+  // swiftlint:disable force_unwrapping
   private let websiteURL = URL(string: "https://dns-security.peterlee.app/dohdot")!
   private let mobileAppURL = URL(string: "https://apps.apple.com/app/id1533938029")!
+  // swiftlint:enable force_unwrapping
 
   var body: some View {
     ScrollView {

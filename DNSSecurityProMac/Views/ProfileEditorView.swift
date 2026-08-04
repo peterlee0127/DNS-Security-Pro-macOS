@@ -4,12 +4,20 @@ struct ProfileEditorView: View {
   @Environment(\.dismiss) private var dismiss
   @State private var profile: DNSProfile
   @State private var serversText: String
+  @State private var excludedWiFiText: String
+  @State private var excludedDomainsText: String
 
   let onSave: (DNSProfile) -> Bool
 
   init(profile: DNSProfile, onSave: @escaping (DNSProfile) -> Bool) {
     _profile = State(initialValue: profile)
     _serversText = State(initialValue: profile.servers.joined(separator: ", "))
+    _excludedWiFiText = State(
+      initialValue: profile.wiFiExclusions.joined(separator: ", ")
+    )
+    _excludedDomainsText = State(
+      initialValue: profile.domainExclusions.joined(separator: ", ")
+    )
     self.onSave = onSave
   }
 
@@ -33,6 +41,26 @@ struct ProfileEditorView: View {
             .foregroundStyle(.secondary)
         }
 
+        Section("Protection") {
+          ForEach(DNSProfileTrait.allCases) { trait in
+            Toggle(isOn: traitBinding(trait)) {
+              Label(trait.title, systemImage: trait.systemImage)
+            }
+          }
+        }
+
+        Section("Automatic Rules") {
+          TextField("Disable on Wi-Fi Networks", text: $excludedWiFiText)
+          Text("Enter SSIDs separated by commas, for example Office Wi-Fi, Home.")
+            .font(.caption)
+            .foregroundStyle(.secondary)
+
+          TextField("Exclude Domains", text: $excludedDomainsText)
+          Text("Matching domains and their subdomains use the normal system DNS.")
+            .font(.caption)
+            .foregroundStyle(.secondary)
+        }
+
         Section {
           Label(protocolHelp, systemImage: "info.circle")
             .foregroundStyle(.secondary)
@@ -41,9 +69,10 @@ struct ProfileEditorView: View {
       .formStyle(.grouped)
       .onChange(of: profile.dnsProtocol) { _, dnsProtocol in
         updateEndpointPlaceholder(for: dnsProtocol)
+        serversText = ""
       }
     }
-    .frame(width: 540, height: 390)
+    .frame(width: 580, height: 620)
     .navigationTitle(profile.name.isEmpty ? "New DNS Profile" : "Edit DNS Profile")
     .toolbar {
       ToolbarItem(placement: .cancellationAction) {
@@ -57,6 +86,8 @@ struct ProfileEditorView: View {
             .split(separator: ",")
             .map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
+          profile.excludedWiFiSSIDs = commaSeparatedValues(excludedWiFiText)
+          profile.excludedDomains = commaSeparatedValues(excludedDomainsText)
           if onSave(profile) {
             dismiss()
           }
@@ -86,5 +117,29 @@ struct ProfileEditorView: View {
     default:
       break
     }
+  }
+
+  private func traitBinding(_ trait: DNSProfileTrait) -> Binding<Bool> {
+    Binding(
+      get: { profile.profileTraits.contains(trait) },
+      set: { isEnabled in
+        var traits = profile.profileTraits
+        if isEnabled {
+          if !traits.contains(trait) {
+            traits.append(trait)
+          }
+        } else {
+          traits.removeAll { $0 == trait }
+        }
+        profile.traits = traits
+      }
+    )
+  }
+
+  private func commaSeparatedValues(_ text: String) -> [String] {
+    text
+      .split(separator: ",")
+      .map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }
+      .filter { !$0.isEmpty }
   }
 }
