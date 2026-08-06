@@ -65,13 +65,6 @@ struct ProfilesView: View {
             || appModel.isRefreshingSystemStatus
         )
 
-        Button {
-          appModel.probeAllProfiles()
-        } label: {
-          Label("Test All Resolvers", systemImage: "waveform.path.ecg")
-        }
-        .disabled(!appModel.probingProfileIDs.isEmpty)
-
         Menu {
           Button {
             if let selectedProfile {

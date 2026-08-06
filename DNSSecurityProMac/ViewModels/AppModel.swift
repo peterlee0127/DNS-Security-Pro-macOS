@@ -305,12 +305,6 @@ final class AppModel: ObservableObject {
     }
   }
 
-  func probeAllProfiles() {
-    for profile in profiles where !probingProfileIDs.contains(profile.id) {
-      probe(profile)
-    }
-  }
-
   func importProfiles(_ importedProfiles: [DNSProfile]) {
     guard !isBusy, !isRefreshingSystemStatus else { return }
 
