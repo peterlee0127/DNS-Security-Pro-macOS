@@ -41,14 +41,6 @@ struct ProfileEditorView: View {
             .foregroundStyle(.secondary)
         }
 
-        Section("Protection") {
-          ForEach(DNSProfileTrait.allCases) { trait in
-            Toggle(isOn: traitBinding(trait)) {
-              Label(trait.title, systemImage: trait.systemImage)
-            }
-          }
-        }
-
         Section("Automatic Rules") {
           TextField("Disable on Wi-Fi Networks", text: $excludedWiFiText)
           Text("Enter SSIDs separated by commas, for example Office Wi-Fi, Home.")
@@ -117,23 +109,6 @@ struct ProfileEditorView: View {
     default:
       break
     }
-  }
-
-  private func traitBinding(_ trait: DNSProfileTrait) -> Binding<Bool> {
-    Binding(
-      get: { profile.profileTraits.contains(trait) },
-      set: { isEnabled in
-        var traits = profile.profileTraits
-        if isEnabled {
-          if !traits.contains(trait) {
-            traits.append(trait)
-          }
-        } else {
-          traits.removeAll { $0 == trait }
-        }
-        profile.traits = traits
-      }
-    )
   }
 
   private func commaSeparatedValues(_ text: String) -> [String] {
