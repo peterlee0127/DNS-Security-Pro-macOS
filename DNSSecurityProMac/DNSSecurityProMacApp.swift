@@ -7,7 +7,9 @@ struct DNSSecurityProMacApp: App {
   @StateObject private var appModel = AppModel()
 
   var body: some Scene {
-    WindowGroup(id: "main-v2") {
+    // DNS Security Pro is a utility with one shared system configuration.
+    // Keep one window so menu-bar opens cannot create competing controls.
+    Window("DNS Security Pro", id: "main-v2") {
       RootView()
         .environmentObject(appModel)
         .task {

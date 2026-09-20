@@ -16,7 +16,16 @@ struct AppSettingsView: View {
           .font(.caption)
           .foregroundStyle(.secondary)
 
-        Toggle("Open at Login", isOn: $launchesAtLogin)
+        Toggle(
+          "Open at Login",
+          isOn: Binding(
+            get: { launchesAtLogin },
+            set: { isEnabled in
+              launchesAtLogin = isEnabled
+              updateLoginItem(isEnabled: isEnabled)
+            }
+          )
+        )
         Text(loginItemStatusText)
           .font(.caption)
           .foregroundStyle(.secondary)
@@ -35,13 +44,15 @@ struct AppSettingsView: View {
       }
     }
     .formStyle(.grouped)
-    .frame(width: 540, height: 430)
+    .frame(
+      minWidth: 480,
+      idealWidth: 540,
+      minHeight: 340,
+      idealHeight: 430
+    )
     .navigationTitle("Settings")
     .onAppear {
       launchesAtLogin = Self.isLoginItemRequested
-    }
-    .onChange(of: launchesAtLogin) { _, isEnabled in
-      updateLoginItem(isEnabled: isEnabled)
     }
     .onChange(of: notifiesDNSFailures) { _, isEnabled in
       if isEnabled {

@@ -55,7 +55,7 @@ struct RootView: View {
         ProfilesView()
       }
     }
-    .frame(minWidth: 860, minHeight: 520)
+    .frame(minWidth: 720, minHeight: 460)
     .alert(item: $appModel.alert) { alert in
       Alert(
         title: Text(alert.title),

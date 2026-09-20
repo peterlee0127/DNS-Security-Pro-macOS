@@ -61,10 +61,14 @@ struct ProfileEditorView: View {
       .formStyle(.grouped)
       .onChange(of: profile.dnsProtocol) { _, dnsProtocol in
         updateEndpointPlaceholder(for: dnsProtocol)
-        serversText = ""
       }
     }
-    .frame(width: 580, height: 620)
+    .frame(
+      minWidth: 500,
+      idealWidth: 580,
+      minHeight: 480,
+      idealHeight: 620
+    )
     .navigationTitle(profile.name.isEmpty ? "New DNS Profile" : "Edit DNS Profile")
     .toolbar {
       ToolbarItem(placement: .cancellationAction) {

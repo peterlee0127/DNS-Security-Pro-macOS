@@ -32,40 +32,30 @@ struct ProfilesView: View {
     .listStyle(.inset)
     .navigationTitle("DNS Profiles")
     .toolbar {
-      ToolbarItemGroup {
+      ToolbarItem(placement: .primaryAction) {
         Button {
           profileEditor = .customTemplate
         } label: {
           Label("Add Profile", systemImage: "plus")
         }
+        .help("Add Profile")
+      }
 
-        Button {
-          if let selectedProfile, !selectedProfile.isBuiltIn {
-            profileEditor = selectedProfile
-          }
-        } label: {
-          Label("Edit DNS Profile", systemImage: "pencil")
-        }
-        .disabled(
-          selectedProfile?.isBuiltIn != false
-            || appModel.isBusy
-            || appModel.isRefreshingSystemStatus
-        )
-
-        Button(role: .destructive) {
-          if let selectedProfile, !selectedProfile.isBuiltIn {
-            profilePendingDeletion = selectedProfile
-          }
-        } label: {
-          Label("Delete Profile", systemImage: "trash")
-        }
-        .disabled(
-          selectedProfile?.isBuiltIn != false
-            || appModel.isBusy
-            || appModel.isRefreshingSystemStatus
-        )
-
+      ToolbarItem(placement: .secondaryAction) {
         Menu {
+          Button {
+            if let selectedProfile, !selectedProfile.isBuiltIn {
+              profileEditor = selectedProfile
+            }
+          } label: {
+            Label("Edit DNS Profile", systemImage: "pencil")
+          }
+          .disabled(
+            selectedProfile?.isBuiltIn != false
+              || appModel.isBusy
+              || appModel.isRefreshingSystemStatus
+          )
+
           Button {
             if let selectedProfile {
               profileEditor = duplicate(selectedProfile)
@@ -74,6 +64,19 @@ struct ProfilesView: View {
             Label("Duplicate Selected Profile", systemImage: "doc.on.doc")
           }
           .disabled(selectedProfile == nil)
+
+          Button(role: .destructive) {
+            if let selectedProfile, !selectedProfile.isBuiltIn {
+              profilePendingDeletion = selectedProfile
+            }
+          } label: {
+            Label("Delete Profile", systemImage: "trash")
+          }
+          .disabled(
+            selectedProfile?.isBuiltIn != false
+              || appModel.isBusy
+              || appModel.isRefreshingSystemStatus
+          )
 
           Divider()
 
@@ -91,11 +94,12 @@ struct ProfilesView: View {
           }
           .disabled(appModel.customProfiles.isEmpty)
         } label: {
-          Label("Profile Transfer", systemImage: "ellipsis.circle")
+          Label("Profile Actions", systemImage: "ellipsis.circle")
         }
+        .help("Profile Actions")
       }
     }
-    .searchable(text: $searchText, prompt: "Search profiles")
+    .searchable(text: $searchText, placement: .toolbar, prompt: "Search profiles")
     .onAppear {
       if selectedProfileID == nil {
         selectedProfileID = appModel.selectedProfileID
@@ -206,6 +210,7 @@ struct ProfilesView: View {
             }
           )
           .tag(profile.id)
+          .listRowSeparator(.hidden)
           .contextMenu {
             Button("Use This Profile") {
               selectedProfileID = profile.id
@@ -346,16 +351,15 @@ private struct ProfileListRow: View {
 
       if isActive {
         Label("Selected", systemImage: "checkmark.circle.fill")
+          .labelStyle(.iconOnly)
           .font(.callout)
           .foregroundStyle(Color.accentColor)
           .fixedSize()
+          .help("Selected")
       } else {
         Button(action: useAction) {
-          ViewThatFits(in: .horizontal) {
-            Label("Use This Profile", systemImage: "checkmark.circle")
-              .fixedSize()
-            Image(systemName: "checkmark.circle")
-          }
+          Label("Use This Profile", systemImage: "checkmark.circle")
+            .labelStyle(.iconOnly)
         }
         .buttonStyle(.bordered)
         .controlSize(.small)

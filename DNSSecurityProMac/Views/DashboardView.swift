@@ -37,49 +37,16 @@ struct DashboardView: View {
 
   private var protectionCard: some View {
     VStack(alignment: .leading, spacing: 18) {
-      HStack(spacing: 16) {
-        ZStack {
-          Circle()
-            .fill(statusColor.opacity(appModel.isSystemEnabled ? 0.16 : 0.08))
-            .frame(width: 58, height: 58)
-          Image(systemName: statusSystemImage)
-            .font(.system(size: 28))
-            .foregroundStyle(statusColor)
+      ViewThatFits(in: .horizontal) {
+        HStack(spacing: 16) {
+          statusIdentity
+          Spacer(minLength: 12)
+          statusAction
         }
 
-        VStack(alignment: .leading, spacing: 3) {
-          Text(statusTitle)
-            .font(.title2.bold())
-          Text(statusMessage)
-            .font(.callout)
-            .foregroundStyle(.secondary)
-        }
-
-        Spacer(minLength: 12)
-
-        if !appModel.hasLoadedSystemStatus
-          || appModel.isBusy
-          || appModel.isRefreshingSystemStatus {
-          ProgressView()
-            .controlSize(.large)
-        } else if appModel.hasSystemStatusError {
-          Button("Try Again") {
-            appModel.refreshSystemStatus(showErrors: true)
-          }
-          .buttonStyle(.borderedProminent)
-          .controlSize(.large)
-        } else if appModel.isSystemEnabled {
-          Button("Disconnect") {
-            appModel.setDNSActive(false)
-          }
-          .buttonStyle(.bordered)
-          .controlSize(.large)
-        } else {
-          Button("Connect") {
-            appModel.setDNSActive(true)
-          }
-          .buttonStyle(.borderedProminent)
-          .controlSize(.large)
+        VStack(alignment: .leading, spacing: 14) {
+          statusIdentity
+          statusAction
         }
       }
 
@@ -90,23 +57,15 @@ struct DashboardView: View {
           .font(.caption)
           .foregroundStyle(.secondary)
 
-        HStack(spacing: 10) {
-          Picker("DNS Profile", selection: profileSelection) {
-            ForEach(appModel.profiles) { profile in
-              Text("\(profile.name) · \(profile.dnsProtocol.shortName)")
-                .tag(profile.id)
-            }
+        ViewThatFits(in: .horizontal) {
+          HStack(spacing: 10) {
+            profilePicker
+            selectedEndpoint
           }
-          .labelsHidden()
-          .frame(maxWidth: 320)
-          .disabled(appModel.isBusy || appModel.isRefreshingSystemStatus)
 
-          if let profile = appModel.selectedProfile {
-            Text(profile.endpointHost)
-              .font(.callout)
-              .foregroundStyle(.secondary)
-              .lineLimit(1)
-              .truncationMode(.middle)
+          VStack(alignment: .leading, spacing: 7) {
+            profilePicker
+            selectedEndpoint
           }
         }
       }
@@ -124,6 +83,82 @@ struct DashboardView: View {
     .overlay {
       RoundedRectangle(cornerRadius: 14, style: .continuous)
         .stroke(statusColor.opacity(appModel.isSystemEnabled ? 0.34 : 0.14), lineWidth: 1)
+    }
+  }
+
+  private var statusIdentity: some View {
+    HStack(spacing: 16) {
+      ZStack {
+        Circle()
+          .fill(statusColor.opacity(appModel.isSystemEnabled ? 0.16 : 0.08))
+          .frame(width: 58, height: 58)
+        Image(systemName: statusSystemImage)
+          .font(.system(size: 28))
+          .foregroundStyle(statusColor)
+      }
+      .accessibilityHidden(true)
+
+      VStack(alignment: .leading, spacing: 3) {
+        Text(statusTitle)
+          .font(.title2.bold())
+          .fixedSize(horizontal: false, vertical: true)
+        Text(statusMessage)
+          .font(.callout)
+          .foregroundStyle(.secondary)
+          .fixedSize(horizontal: false, vertical: true)
+      }
+    }
+  }
+
+  @ViewBuilder
+  private var statusAction: some View {
+    if !appModel.hasLoadedSystemStatus
+      || appModel.isBusy
+      || appModel.isRefreshingSystemStatus {
+      ProgressView()
+        .controlSize(.large)
+        .accessibilityLabel("Checking DNS status…")
+    } else if appModel.hasSystemStatusError {
+      Button("Try Again") {
+        appModel.refreshSystemStatus(showErrors: true)
+      }
+      .buttonStyle(.borderedProminent)
+      .controlSize(.large)
+    } else if appModel.isSystemEnabled {
+      Button("Disconnect") {
+        appModel.setDNSActive(false)
+      }
+      .buttonStyle(.bordered)
+      .controlSize(.large)
+    } else {
+      Button("Connect") {
+        appModel.setDNSActive(true)
+      }
+      .buttonStyle(.borderedProminent)
+      .controlSize(.large)
+    }
+  }
+
+  private var profilePicker: some View {
+    Picker("DNS Profile", selection: profileSelection) {
+      ForEach(appModel.profiles) { profile in
+        Text("\(profile.name) · \(profile.dnsProtocol.shortName)")
+          .tag(profile.id)
+      }
+    }
+    .labelsHidden()
+    .frame(maxWidth: 320)
+    .disabled(appModel.isBusy || appModel.isRefreshingSystemStatus)
+  }
+
+  @ViewBuilder
+  private var selectedEndpoint: some View {
+    if let profile = appModel.selectedProfile {
+      Text(profile.endpointHost)
+        .font(.callout)
+        .foregroundStyle(.secondary)
+        .lineLimit(1)
+        .truncationMode(.middle)
     }
   }
 
