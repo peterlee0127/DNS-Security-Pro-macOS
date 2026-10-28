@@ -19,12 +19,15 @@ final class AppModel: ObservableObject {
   @Published private(set) var isBusy = false
   @Published private(set) var probeResults: [String: DNSProbeResult] = [:]
   @Published private(set) var probingProfileIDs: Set<String> = []
+  @Published private(set) var dnsUsageResult: DNSUsageResult?
+  @Published private(set) var isDiagnosingDNSUsage = false
   @Published var alert: AppAlert?
 
   private let repository: DNSProfileRepository
   private let systemDNSManager: SystemDNSManager
   private let dnsProbeService: DNSProbeService
   private let notificationService: AppNotificationService
+  private let dnsUsageDiagnostic = DNSUsageDiagnostic()
   private var hasStarted = false
 
   init(
@@ -67,6 +70,7 @@ final class AppModel: ObservableObject {
 
   func refreshSystemStatus(showErrors: Bool = false) {
     guard !isRefreshingSystemStatus else { return }
+    clearDNSUsageDiagnostic()
     isRefreshingSystemStatus = true
     systemDNSManager.loadStatus { [weak self] result in
       DispatchQueue.main.async {
@@ -99,6 +103,7 @@ final class AppModel: ObservableObject {
       refreshSystemStatus(showErrors: true)
       return
     }
+    clearDNSUsageDiagnostic()
     isBusy = true
 
     if enabled {
@@ -165,6 +170,7 @@ final class AppModel: ObservableObject {
     guard !isBusy, !isRefreshingSystemStatus else { return }
     guard profiles.contains(where: { $0.id == id }) else { return }
 
+    clearDNSUsageDiagnostic()
     let previousProfileID = selectedProfileID
     selectedProfileID = id
     guard persist() else {
@@ -233,6 +239,7 @@ final class AppModel: ObservableObject {
       } else {
         profiles.append(validatedProfile)
       }
+      if selectedProfileID == validatedProfile.id { clearDNSUsageDiagnostic() }
       probeResults[validatedProfile.id] = nil
       profiles.sort(by: Self.profileSort)
       guard persist() else {
@@ -266,6 +273,7 @@ final class AppModel: ObservableObject {
     let previousProfiles = profiles
     let previousProfileID = selectedProfileID
     let wasSelected = previousProfileID == profile.id
+    if wasSelected { clearDNSUsageDiagnostic() }
     profiles.removeAll { $0.id == profile.id }
     probeResults[profile.id] = nil
     if wasSelected {
@@ -291,6 +299,22 @@ final class AppModel: ObservableObject {
 
     guard let settingsURL = URL(string: "x-apple.systempreferences:") else { return }
     NSWorkspace.shared.open(settingsURL)
+  }
+
+  func diagnoseDNSUsage() {
+    guard !isDiagnosingDNSUsage, !isBusy, !isRefreshingSystemStatus else { return }
+    dnsUsageResult = nil
+    isDiagnosingDNSUsage = true
+    dnsUsageDiagnostic.start { [weak self] result in
+      self?.dnsUsageResult = result
+      self?.isDiagnosingDNSUsage = false
+    }
+  }
+
+  private func clearDNSUsageDiagnostic() {
+    dnsUsageDiagnostic.cancel()
+    dnsUsageResult = nil
+    isDiagnosingDNSUsage = false
   }
 
   func probe(_ profile: DNSProfile) {
@@ -364,6 +388,7 @@ final class AppModel: ObservableObject {
       )
     )
 
+    if updatedSelectedProfile { clearDNSUsageDiagnostic() }
     if updatedSelectedProfile, isSystemEnabled {
       selectProfile(id: selectedProfileID)
     }

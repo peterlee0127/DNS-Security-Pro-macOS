@@ -14,6 +14,7 @@ struct DashboardView: View {
     ScrollView {
       VStack(alignment: .leading, spacing: 12) {
         protectionCard
+        dnsUsageCard
 
         if appModel.requiresSystemApproval {
           approvalNotice
@@ -33,6 +34,48 @@ struct DashboardView: View {
         .disabled(appModel.isBusy || appModel.isRefreshingSystemStatus)
       }
     }
+  }
+
+  private var dnsUsageCard: some View {
+    VStack(alignment: .leading, spacing: 12) {
+      HStack {
+        Label("Actual DNS Usage", systemImage: "network")
+          .font(.headline)
+        Spacer()
+        if appModel.isDiagnosingDNSUsage {
+          ProgressView()
+            .controlSize(.small)
+            .accessibilityLabel("Checking actual DNS usage…")
+        }
+        Button("Check DNS Usage") {
+          appModel.diagnoseDNSUsage()
+        }
+        .disabled(appModel.isDiagnosingDNSUsage || appModel.isBusy || appModel.isRefreshingSystemStatus)
+      }
+
+      if let result = appModel.dnsUsageResult {
+        Label(result.verdict.title, systemImage: result.verdict == .encrypted
+          ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
+          .foregroundStyle(result.verdict == .encrypted ? Color.green : Color.orange)
+        Text("Observed protocol: \(result.protocolName)")
+          .font(.callout)
+        Text("Test host: \(result.host)")
+          .font(.caption)
+          .textSelection(.enabled)
+        Text(result.measuredAt, style: .time)
+          .font(.caption)
+          .foregroundStyle(.secondary)
+      }
+
+      Text("Checks the DNS protocol observed for one request. It cannot confirm which profile handled it or how other apps resolve DNS. Cached lookups, proxies, or missing metrics may prevent a result. Check again after changing networks.")
+        .font(.caption)
+        .foregroundStyle(.secondary)
+      Text("Runs only when requested. Contacts a random host at map.help.every1dns.net, with www.apple.com as a fallback. These services receive your connection IP address.")
+        .font(.caption)
+        .foregroundStyle(.secondary)
+    }
+    .padding(20)
+    .background(.quaternary, in: RoundedRectangle(cornerRadius: 14))
   }
 
   private var protectionCard: some View {
@@ -285,7 +328,7 @@ struct DashboardView: View {
       return "Refresh to read the current macOS DNS configuration again."
     }
     return appModel.isSystemEnabled
-      ? "Your Mac is protected by the selected encrypted DNS profile."
+      ? "macOS reports this DNS configuration as enabled. Use Check DNS Usage to inspect a request."
       : "Choose a profile, then connect encrypted DNS."
   }
 }

@@ -105,6 +105,23 @@ show its round-trip latency. Tests use an RFC 8484 DNS message for DoH and a
 length-prefixed DNS message over a certificate-validated TLS connection for
 DoT. The test does not use a third-party leak-test or analytics service.
 
+The Dashboard also offers a separate, manual **Check DNS Usage** action. It
+observes Foundation's DNS protocol metrics for an ordinary HTTPS request rather
+than contacting the selected resolver directly. It reports encrypted DNS,
+unencrypted DNS, or an inconclusive result; it cannot establish which profile
+handled the lookup or describe DNS traffic from other apps. Reused connections,
+cached lookups, proxies, and missing metrics are not treated as proof of
+protection. Results show the test host, observed protocol, and time; check again
+after changing networks.
+
+This diagnostic contacts a random subdomain of `map.help.every1dns.net`, as the
+iOS app does, and falls back once to `www.apple.com` when no usable observation
+is available. Both use HTTPS with normal certificate validation. These services
+receive the connection IP address. No response body is used, cookies and URL
+caching are disabled, redirects are not followed, and diagnostics run only when
+the user requests them. An HTTPS failure alone does not establish a DNS failure;
+available DNS metrics may still describe the lookup.
+
 Custom profiles can include automatic rules:
 
 - Disable the encrypted resolver on selected Wi-Fi SSIDs.

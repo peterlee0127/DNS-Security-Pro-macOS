@@ -26,6 +26,7 @@
 		E10000000000000000000011 /* DNSProbeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000013 /* DNSProbeService.swift */; };
 		E10000000000000000000012 /* DNSProfilesDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000014 /* DNSProfilesDocument.swift */; };
 		E10000000000000000000013 /* AppNotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000015 /* AppNotificationService.swift */; };
+		E10000000000000000000016 /* DNSUsageDiagnostic.swift in Sources */ = {isa = PBXBuildFile; fileRef = D10000000000000000000016 /* DNSUsageDiagnostic.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -50,6 +51,7 @@
 		D10000000000000000000013 /* DNSProbeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNSProbeService.swift; sourceTree = "<group>"; };
 		D10000000000000000000014 /* DNSProfilesDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNSProfilesDocument.swift; sourceTree = "<group>"; };
 		D10000000000000000000015 /* AppNotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppNotificationService.swift; sourceTree = "<group>"; };
+		D10000000000000000000016 /* DNSUsageDiagnostic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNSUsageDiagnostic.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -111,6 +113,7 @@
 				D10000000000000000000004 /* SystemDNSManager.swift */,
 				D10000000000000000000013 /* DNSProbeService.swift */,
 				D10000000000000000000015 /* AppNotificationService.swift */,
+				D10000000000000000000016 /* DNSUsageDiagnostic.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -242,6 +245,7 @@
 				E10000000000000000000011 /* DNSProbeService.swift in Sources */,
 				E10000000000000000000012 /* DNSProfilesDocument.swift in Sources */,
 				E10000000000000000000013 /* AppNotificationService.swift in Sources */,
+				E10000000000000000000016 /* DNSUsageDiagnostic.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -337,7 +341,7 @@
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_INCOMING_NETWORK_CONNECTIONS = NO;
-				ENABLE_OUTGOING_NETWORK_CONNECTIONS = NO;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
 				ENABLE_RESOURCE_ACCESS_BLUETOOTH = NO;
 				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;

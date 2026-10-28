@@ -20,6 +20,11 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v6
 
+      - name: Check DNS usage classification
+        run: |
+          swiftc DNSSecurityProMac/Services/DNSUsageDiagnostic.swift Tests/main.swift -o "$RUNNER_TEMP/dns-usage-check"
+          "$RUNNER_TEMP/dns-usage-check"
+
       - name: Build
         run: |
           xcodebuild \
