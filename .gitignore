@@ -2,7 +2,7 @@
 .DS_Store
 .AppleDouble
 ._*
-
+release-dmg.sh
 # Xcode user-specific data
 xcuserdata/
 *.xcuserstate
