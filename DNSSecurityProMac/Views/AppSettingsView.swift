@@ -1,3 +1,4 @@
+import AppKit
 import ServiceManagement
 import SwiftUI
 
@@ -27,6 +28,16 @@ struct AppSettingsView: View {
           )
         )
         Text(loginItemStatusText)
+          .font(.caption)
+          .foregroundStyle(.secondary)
+      }
+
+      Section("Language") {
+        LabeledContent("App Language", value: currentLanguageTitle)
+        Button("Change Language in System Settings…") {
+          openLanguageSettings()
+        }
+        Text("The app follows the language chosen in System Settings → General → Language & Region → Applications.")
           .font(.caption)
           .foregroundStyle(.secondary)
       }
@@ -87,6 +98,23 @@ struct AppSettingsView: View {
     @unknown default:
       return String(localized: "Login item status is unavailable.")
     }
+  }
+
+  private var currentLanguageTitle: String {
+    let code = Bundle.main.preferredLocalizations.first ?? "en"
+    return code.hasPrefix("zh")
+      ? String(localized: "Traditional Chinese")
+      : String(localized: "English")
+  }
+
+  private func openLanguageSettings() {
+    if let url = URL(string: "x-apple.systempreferences:com.apple.Localization-Settings.extension"),
+      NSWorkspace.shared.open(url)
+    {
+      return
+    }
+    guard let settingsURL = URL(string: "x-apple.systempreferences:") else { return }
+    NSWorkspace.shared.open(settingsURL)
   }
 
   private static var isLoginItemRequested: Bool {
